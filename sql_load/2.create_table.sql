@@ -1,7 +1,6 @@
 
-/* XÓA HẾT CÁI CŨ NẾU LỖI (BỎ QUa)
+/* XÓA HẾT CÁI CŨ NẾU LỖI (BỎ QUA)
 DROP TABLE IF EXISTS consumer_complaints CASCADE;
-
 */
 
 CREATE TABLE consumer_complaints (
@@ -11,7 +10,7 @@ CREATE TABLE consumer_complaints (
     issue               VARCHAR(100),
     state               VARCHAR(5),
     submitted_via       VARCHAR(20),
-    date_received_1     VARCHAR(15),   -- giữ dạng text, convert DATE ở bước sau
+    date_received_1     VARCHAR(15),   
     date_resolved_1     VARCHAR(15),
     timely_response     VARCHAR(5),
     consumer_disputed   VARCHAR(5),

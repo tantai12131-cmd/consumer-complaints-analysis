@@ -1,5 +1,4 @@
 -- ============================================================
--- COFFEE SHOP DATABASE - IMPORT CSV DATA
 -- Run AFTER 01_create_tables.sql
 -- ============================================================
 -- IMPORTANT: Thay 'C:/your/path/to/' bằng đường dẫn thực tế

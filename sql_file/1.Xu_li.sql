@@ -24,9 +24,10 @@ ALTER COLUMN date_received TYPE DATE
 USING TO_DATE(date_received, 'MM-DD-YYYY')
 
 ALTER TABLE consumer_complaints
-ALTER COLUMN date_received TYPE DATE
+ALTER COLUMN date_resolved TYPE DATE
 USING TO_DATE(date_resolved, 'MM-DD-YYYY')
 
+SELECT date_received, date_resolved FROM consumer_complaints LIMIT 8
 
 SELECT COUNT(*)
 FROM consumer_complaints

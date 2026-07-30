@@ -43,14 +43,13 @@
   3. `ALTER TABLE ... ADD CONSTRAINT FOREIGN KEY (state_code) REFERENCES dim_state`.
 -Lí do: Điền khuyết dữ liệu bị lỗi mapping, đồng thời loại bỏ trùng lặp text và ràng buộc DB tự kiểm tra tính toàn vẹn.
 -Kết quả: 47 dòng `#N/A` đã điền đúng, verify = 0 dòng còn `#N/A`. FK constraint tạo thành công, không có `state_code` orphan.
-
 9.
--Thao tác:
--Lí do:
--Kết quả:
+-Thao tác: Dùng `TRIM`,`LOWER` + `GROUP BY`
+-Lí do: KIỂM TRA Inconsistent Formatting của (Company, Product, Issue, Submitted via)
+-Kết quả: Không phát hiện lỗi
 10.
--Thao tác:
--Lí do:
+-Thao tác: 
+-Lí do:KIỂM TRA consistent cho  Resolution time,Year, QTR
 -Kết quả:
 11.
 -Thao tác:

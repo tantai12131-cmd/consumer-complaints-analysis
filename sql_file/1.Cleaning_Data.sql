@@ -119,22 +119,54 @@ ALTER TABLE consumer_complaints
 ADD CONSTRAINT fk_state_code
 FOREIGN KEY (state_code) REFERENCES dim_state(state_code);
 
+----KIỂM TRA Inconsistent Formatting của (Company, Product, Issue, Submitted via)
+--Kiểm tra company
+UPDATE consumer_complaints
+SET 
+    company = TRIM(company),
+    issue = TRIM(issue)
 
+SELECT LOWER(TRIM(company)),
+       COUNT(DISTINCT company) AS so_bien_the,
+       ARRAY_AGG(DISTINCT company) AS cac_bien_the
+FROM consumer_complaints
+GROUP BY LOWER(TRIM(company))
+HAVING COUNT(DISTINCT company) > 1
+ORDER BY so_bien_the DESC;
+
+--Kiểm tra issue
+SELECT LOWER(TRIM(issue)) , 
+       COUNT(DISTINCT issue) AS so_bien_the,
+       ARRAY_AGG(DISTINCT issue) AS cac_bien_the
+FROM consumer_complaints
+GROUP BY LOWER(TRIM(issue))
+HAVING COUNT(DISTINCT issue) > 1
+ORDER BY so_bien_the DESC;
+
+--Kiểm tra (Product, Submitted via)
+SELECT DISTINCT consumer_disputed
+FROM consumer_complaints
+
+
+
+----KIỂM TRA consistent cho  (resolution_time_days, year, qtr_us_fly)
+--KIỂM TRA resolution_time_days
+SELECT date_received,date_resolved, resolution_time_days,
+    date_resolved - date_received AS TEST
+FROM consumer_complaints
+WHERE (date_resolved - date_received) != resolution_time_days;
+
+--GIẢI QUYẾT 1650 TH bị SAI 
+
+
+
+----- BẢNG ------
 
 SELECT * FROM dim_state
 
-SELECT *, COUNT(*) over() FROM consumer_complaints cc 
+SELECT *, COUNT(*) over() 
+FROM consumer_complaints cc 
 JOIN dim_state ds ON cc.state_code = ds.state_code
-WHERE cc.state_code = 'UNKNOWN' AND state_name  = 'Unknown'
- 
-
-
-
-
-
-
-
-
 
 
 

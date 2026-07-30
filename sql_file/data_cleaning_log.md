@@ -17,23 +17,33 @@
 4.
 -Thao tác: Dùng "COUNT(*)" với "GROUP BY company,.."
 -Lí do: KIỂM TRA Duplicate
--Kết quả: Không Duplicate nhưng dữ liệu không đủ chi tiết nên cho rằng không bị trùng
+-Kết quả: Có Duplicate nhưng số lượng ít và dữ liệu không đủ chi tiết nên cho rằng không bị trùng 
 5.
 -Thao tác: UPDATE 110 dòng có `state IS NULL` và `state_name = '#N/A'` thành `'UNKNOWN'` ở cả 2 cột (đã ALTER `state` từ VARCHAR(5) → VARCHAR(20) trước khi update).
 -Lí do: Đây là TH cả 2 cột đều thiếu dữ liệu, không có thông tin để khôi phục hay tra cứu→ không thể giữ NULL/#N/A, cần chuẩn hóa về 1 giá trị thống nhất.
 -Kết quả: 110 dòng đã đổi thành 'UNKNOWN', khớp đúng số lượng đã đếm ban đầu.
 6.
--Thao tác:
--Lí do:
--Kết quả:
+-Thao tác: `SELECT state, state_name, COUNT(*) OVER()`  ở `WHERE state IS NOT NULL and state_name = '#N/A'`
+-Lí do: Kiểm tra có trường hợp nào chỉ `'#N/A'` chỉ ở  ở `state_name`
+-Kết quả: Không có trường hợp nào 
 7.
--Thao tác:
--Lí do:
--Kết quả:
+-Thao tác: Tạo Dimension table `dim_state` cho star schema:
+  1. Đổi tên `state` → `state_code` (đúng vai trò FK).
+  2. `CREATE TABLE dim_state (state_code PK, state_name)`.
+  3. `INSERT ... SELECT DISTINCT` từ `consumer_complaints` (loại `#N/A`, `UNKNOWN`) → tự động lấy 51 bang/DC.
+  4. `INSERT` thủ công 8 mã lãnh thổ/quân đội (PR, VI, GU, AS, MP, AE, AP, AA) theo chuẩn USPS.
+  5. `INSERT` thêm `('UNKNOWN','Unknown')` để đảm bảo referential integrity.
+-Lí do: Chuẩn hóa mô hình Fact-Dimension, tách riêng bảng mô tả bang khỏi fact table.
+-Kết quả: `dim_state` có 60 dòng (51 bang/DC + 8 lãnh thổ + 1 UNKNOWN).
+
 8.
--Thao tác:
--Lí do:
--Kết quả:
+-Thao tác: Fix lỗi `#N/A` ở `state_name` bằng `dim_state`:
+  1. `UPDATE consumer_complaints ... FROM dim_state WHERE state_name = '#N/A'`.
+  2. `ALTER TABLE ... DROP COLUMN state_name` (xóa cột dư thừa ở fact table).
+  3. `ALTER TABLE ... ADD CONSTRAINT FOREIGN KEY (state_code) REFERENCES dim_state`.
+-Lí do: Điền khuyết dữ liệu bị lỗi mapping, đồng thời loại bỏ trùng lặp text và ràng buộc DB tự kiểm tra tính toàn vẹn.
+-Kết quả: 47 dòng `#N/A` đã điền đúng, verify = 0 dòng còn `#N/A`. FK constraint tạo thành công, không có `state_code` orphan.
+
 9.
 -Thao tác:
 -Lí do:

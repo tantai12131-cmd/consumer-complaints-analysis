@@ -2,11 +2,15 @@
 
 
 1.
--Thao tác: DROP COLUMN cả 2 cột Date received.2 và  Date resolved.2
+-Thao tác: DROP COLUMN cả 2 cột `Date received.2` và  `Date resolved.2`
 -Lí do: Date received.2 và  Date resolved.2 là Duplicate của Date received.1 và  Date resolved.1
+
+
 2.
 -Thao tác: RENAME COLUMN Date received.1 và  Date resolved.1 -> thành Date received và  Date resolved
 -Lí do: Bỏ số đuôi dư thừa để chuẩn hóa tên cột đồng bộ với toàn bộ schema
+
+
 3.
 -Thao tác: Chuyển đổi kiểu dữ liệu của cột date_received từ Text sang DATE (format: YYYY-MM-DD)
 -Lí do: Phục vụ cho việc tính toán khoảng thời gian.
@@ -15,9 +19,9 @@
 -Lí do: KIỂM TRA Duplicate
 -Kết quả: Không Duplicate nhưng dữ liệu không đủ chi tiết nên cho rằng không bị trùng
 5.
--Thao tác:
--Lí do:
--Kết quả:
+-Thao tác: UPDATE 110 dòng có `state IS NULL` và `state_name = '#N/A'` thành `'UNKNOWN'` ở cả 2 cột (đã ALTER `state` từ VARCHAR(5) → VARCHAR(20) trước khi update).
+-Lí do: Đây là TH cả 2 cột đều thiếu dữ liệu, không có thông tin để khôi phục hay tra cứu→ không thể giữ NULL/#N/A, cần chuẩn hóa về 1 giá trị thống nhất.
+-Kết quả: 110 dòng đã đổi thành 'UNKNOWN', khớp đúng số lượng đã đếm ban đầu.
 6.
 -Thao tác:
 -Lí do:

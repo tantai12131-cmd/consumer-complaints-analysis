@@ -1,30 +1,30 @@
-SELECT * FROM consumer_complaints
-SELECT COUNT(*) FROM consumer_complaints
+SELECT * FROM consumer_complaints;
+SELECT COUNT(*) FROM consumer_complaints;
 
 --XÓA 2 CỘT dư là date_received_2 và date_resolved_2
 ALTER TABLE consumer_complaints
-DROP COLUMN  date_received_2
+DROP COLUMN  date_received_2;
 
 ALTER TABLE consumer_complaints
-DROP COLUMN  date_resolved_2
+DROP COLUMN  date_resolved_2;
 
 
 --ĐỔI TÊN date_received_1 và date_resolved_1 bỏ số đuôi
 ALTER TABLE consumer_complaints
-RENAME COLUMN date_received_1 TO date_received
+RENAME COLUMN date_received_1 TO date_received;
 
 ALTER TABLE consumer_complaints
-RENAME COLUMN date_resolved_1 TO date_resolved
+RENAME COLUMN date_resolved_1 TO date_resolved;
 
 
 --Đổi kiểu dữ liệu & định dạng của 2 cột trên thành yyyy-mm-dd
 ALTER TABLE consumer_complaints
 ALTER COLUMN date_received TYPE DATE
-USING TO_DATE(date_received, 'MM-DD-YYYY')
+USING TO_DATE(date_received, 'MM-DD-YYYY');
 
 ALTER TABLE consumer_complaints
 ALTER COLUMN date_resolved TYPE DATE
-USING TO_DATE(date_resolved, 'MM-DD-YYYY')
+USING TO_DATE(date_resolved, 'MM-DD-YYYY');
 
 ----KIỂM TRA Data Validation
 --KIỂM TRA resolution_time_days
@@ -88,7 +88,7 @@ WHERE (date_resolved - date_received) != resolution_time_days;
 
 SELECT *,
     date_resolved - date_received AS TEST
-FROM consumer_complaints
+FROM consumer_complaints;
 
 COMMIT;
 
@@ -97,7 +97,7 @@ COMMIT;
 SELECT id, date_resolved,year,
     EXTRACT(year FROM  date_received)
 FROM consumer_complaints
-WHERE year != EXTRACT(year FROM  date_received)
+WHERE year != EXTRACT(year FROM  date_received);
 
 --KIỂM TRA qtr_us_fly
 --Có 2551 Trường hợp bị lệch.
@@ -127,7 +127,7 @@ SET  qtr_us_fly = CASE
 
 
 SELECT id, date_resolved, qtr_us_fly
-FROM consumer_complaints
+FROM consumer_complaints;
 
 COMMIT;
 
@@ -153,7 +153,7 @@ ORDER BY so_bien_the DESC;
 
 --Kiểm tra (Product,submitted_via,timely_response, consumer_disputed)
 SELECT DISTINCT consumer_disputed
-FROM consumer_complaints
+FROM consumer_complaints;
 
 
 
@@ -175,7 +175,7 @@ WHERE NOT (t IS NOT NULL);
 ---CÓ 110 TH
 SELECT state, state_name, COUNT(*) OVER()
 FROM consumer_complaints
-WHERE state IS NULL and state_name = '#N/A'
+WHERE state IS NULL and state_name = '#N/A';
 
 ALTER TABLE consumer_complaints
 ALTER COLUMN state TYPE VARCHAR(20);
@@ -196,16 +196,16 @@ COMMIT;
 -- KHÔNG CÓ TH nào 
 SELECT state, state_name, COUNT(*) OVER()
 FROM consumer_complaints
-WHERE state IS NULL and state_name != '#N/A'
+WHERE state IS NULL and state_name != '#N/A';
 
 --chỉ #N/A ở state_name
 --Có 47 TH
 SELECT state, state_name, COUNT(*) OVER()
 FROM consumer_complaints
-WHERE state IS NOT NULL and state_name = '#N/A'
+WHERE state IS NOT NULL and state_name = '#N/A';
 
 
---Dimension table `dim_state` cho star schema
+--Tạo Dimension table `dim_state` cho star schema
 ALTER TABLE consumer_complaints
 RENAME COLUMN state TO state_code;
 
@@ -218,10 +218,10 @@ INSERT INTO dim_state (state_code, state_name)
 SELECT DISTINCT state_code, state_name
 FROM consumer_complaints
 WHERE state_name <> '#N/A' AND state_name <> 'UNKNOWN'  AND state_name IS NOT NULL  
-ORDER BY state_code ASC
+ORDER BY state_code ASC;
 
 INSERT INTO dim_state (state_code, state_name) 
-VALUES ('UNKNOWN', 'Unknown')
+VALUES ('UNKNOWN', 'Unknown');
 
 INSERT INTO dim_state (state_code, state_name) 
 VALUES
@@ -252,14 +252,17 @@ FOREIGN KEY (state_code) REFERENCES dim_state(state_code);
 
 
 
-
+---
 ----- BẢNG ------
 
-SELECT * FROM dim_state
-
-SELECT *, COUNT(*) over() 
+SELECT *
 FROM consumer_complaints cc 
-JOIN dim_state ds ON cc.state_code = ds.state_code
+
+
+
+
+
+
 
 
 

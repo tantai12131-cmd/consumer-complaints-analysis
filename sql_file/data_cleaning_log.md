@@ -72,9 +72,8 @@
 -Kết quả: 47 dòng `#N/A` đã điền đúng, verify = 0 dòng còn `#N/A`. FK constraint tạo thành công, không có `state_code` orphan.
 
 13.
--Thao tác:
--Lí do:
--Kết quả:
+-Thao tác: RENAME COLUMN `submitted_via` TO channel;
+-Lí do: Chuẩn hóa tên cột, đồng bộ với schema
 14.
 -Thao tác:
 -Lí do:

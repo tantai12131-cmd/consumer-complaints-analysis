@@ -1,5 +1,3 @@
-DROP TABLE IF EXISTS dim_issue CASCADE;
-
 --'dim_state' đã tạo trước đó rồi
 --Tạo Dimension table `dim_date` cho star schema
 CREATE TABLE dim_date (
@@ -110,13 +108,12 @@ ORDER BY TRIM(submitted_via);
 SELECT * FROM dim_channel
 
 --Tạo Dimension table `dim_response_flag` cho star schema
-
-
 CREATE TABLE dim_response_flag (
     response_flag_id TEXT PRIMARY KEY,
     timely_response VARCHAR(10),
     consumer_disputed VARCHAR(10)
 );
+
 INSERT INTO dim_response_flag (response_flag_id,timely_response, consumer_disputed)
 WITH List_Response AS (
 SELECT DISTINCT 
@@ -132,27 +129,22 @@ FROM List_Response
 
 SELECT * FROM dim_response_flag
 
-
-SELECT *
-FROM consumer_complaints cc 
-JOIN dim_state ds ON cc.state_code = ds.state_code
-JOIN dim_date ds ON cc.state_code = ds.state_code
-JOIN dim_company ds ON cc.state_code = ds.state_code
-JOIN dim_product ds ON cc.state_code = ds.state_code
-JOIN dim_issue ds ON cc.state_code = ds.state_code
-JOIN dim_channel ds ON cc.state_code = ds.state_code
-JOIN dim_response_flag ds ON cc.state_code = ds.state_code
-
-
-
 --ĐỔI TÊN submitted_via thành channel
 ALTER TABLE consumer_complaints
 RENAME COLUMN submitted_via TO channel;
 
-
---DROP CÁC CỘT KHÔNG CẦN THIẾT TRONG consumer_complaints
-
-SELECT *
+--KIỂM TRA FK
+SELECT 
+    cc.id,
+    c.company_id,
+    p.product_id,
+    i.issue_id,
+    cc.state_code,
+    cn.channel_id,
+    cc.date_received,
+    cc.date_resolved,
+    cc.resolution_time_days,
+    r.response_flag_id
 FROM consumer_complaints cc 
 LEFT JOIN dim_company c ON cc.company = c.company
 LEFT JOIN dim_product p ON cc.product = p.product
@@ -161,15 +153,120 @@ LEFT JOIN dim_state s ON cc.state_code = s.state_code
 LEFT JOIN dim_channel cn ON cc.channel = cn.channel
 LEFT JOIN dim_date dr ON cc.date_received = dr.full_date
 LEFT JOIN dim_date ds ON cc.date_resolved = ds.full_date
-LEFT JOIN dim_response_flag r ON cc.timely_response = r.timely_response
+LEFT JOIN dim_response_flag r ON cc.timely_response =r.timely_response
     AND cc.consumer_disputed = r.consumer_disputed
+ORDER BY cc.id
+
+----THAO TÁC TRÊN `consumer_complaints` (fact_table)
+
+-- Thêm các cột id các dim tương ứng vào `consumer_complaints`
+ALTER TABLE consumer_complaints ADD COLUMN company_id TEXT;
+ALTER TABLE consumer_complaints ADD COLUMN product_id TEXT;
+ALTER TABLE consumer_complaints ADD COLUMN issue_id TEXT;
+ALTER TABLE consumer_complaints ADD COLUMN channel_id TEXT;
+ALTER TABLE consumer_complaints ADD COLUMN response_flag_id TEXT;
+
+
+--UPDATE DỮ LIỆU CÁC CỘT
+UPDATE consumer_complaints cc
+SET 
+    company_id          = c.company_id,
+    product_id          = p.product_id,
+    issue_id            = i.issue_id,
+    channel_id          = cn.channel_id,
+    response_flag_id    = r.response_flag_id 
+FROM 
+    dim_company c,
+    dim_product p,
+    dim_issue i,
+    dim_channel cn,
+    dim_response_flag r
+WHERE 
+    cc.company = c.company
+AND cc.product = p.product
+AND cc.issue = i.issue
+AND cc.channel = cn.channel
+AND cc.timely_response =r.timely_response
+AND cc.consumer_disputed = r.consumer_disputed;
+
+SELECT *
+FROM consumer_complaints cc 
+WHERE NOT (cc IS NOT NULL)
+
+
+--DROP CÁC CỘT KHÔNG CẦN THIẾT 
+ALTER TABLE consumer_complaints DROP COLUMN company;
+ALTER TABLE consumer_complaints DROP COLUMN product;
+ALTER TABLE consumer_complaints DROP COLUMN issue;
+ALTER TABLE consumer_complaints DROP COLUMN channel;
+ALTER TABLE consumer_complaints DROP COLUMN timely_response;
+ALTER TABLE consumer_complaints DROP COLUMN consumer_disputed;
+ALTER TABLE consumer_complaints DROP COLUMN year;
+ALTER TABLE consumer_complaints DROP COLUMN qtr_us_fly;
+
+
+--TẠO FK cho `consumer_complaints`
+BEGIN;
+
+ALTER TABLE consumer_complaints
+ADD CONSTRAINT fk_company_id
+FOREIGN KEY (company_id) REFERENCES dim_company(company_id);
+
+ALTER TABLE consumer_complaints
+ADD CONSTRAINT fk_product_id
+FOREIGN KEY (product_id) REFERENCES dim_product(product_id);
+
+ALTER TABLE consumer_complaints
+ADD CONSTRAINT fk_issue_id
+FOREIGN KEY (issue_id) REFERENCES dim_issue(issue_id);
+
+ALTER TABLE consumer_complaints
+ADD CONSTRAINT fk_channel_id
+FOREIGN KEY (channel_id) REFERENCES dim_channel(channel_id);
+
+ALTER TABLE consumer_complaints
+ADD CONSTRAINT fk_response_flag_id
+FOREIGN KEY (response_flag_id) REFERENCES dim_response_flag(response_flag_id);
+
+ALTER TABLE consumer_complaints
+ADD CONSTRAINT fk_date_received
+FOREIGN KEY (date_received) REFERENCES dim_date(full_date);
+
+ALTER TABLE consumer_complaints
+ADD CONSTRAINT fk_date_resolved
+FOREIGN KEY (date_resolved) REFERENCES dim_date(full_date);
+
+-- kiểm tra toàn bộ constraint đã tạo trên fact table
+SELECT conname, conrelid::regclass, confrelid::regclass
+FROM pg_constraint
+WHERE conrelid = 'consumer_complaints'::regclass AND contype = 'f';
+
+COMMIT;
+
+
+-- TẠO VIEW , CHO DỄ NHÌN
+CREATE VIEW consumer_complaints_ordered AS
+SELECT 
+    id, 
+    company_id, 
+    product_id,
+    issue_id,
+    state_code,
+    channel_id,
+    date_received,
+    date_resolved, 
+    resolution_time_days,
+    response_flag_id    
+FROM consumer_complaints;
+
+SELECT *
+FROM  consumer_complaints_ordered
 
 
 
-
----
 ----- BẢNG ------
-
+SELECT *
+FROM consumer_complaints cc
 
 SELECT * FROM dim_company 
 SELECT * FROM dim_product 

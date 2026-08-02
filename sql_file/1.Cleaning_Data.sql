@@ -156,7 +156,6 @@ SELECT DISTINCT consumer_disputed
 FROM consumer_complaints;
 
 
-
 --KIỂM TRA Duplicate
 --Có 53 TH bị trùng 
 SELECT company, product, issue, date_received, state, COUNT(*) AS so_lan_trung

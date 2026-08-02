@@ -1,4 +1,5 @@
 --'dim_state' đã tạo trước đó rồi
+
 --Tạo Dimension table `dim_date` cho star schema
 CREATE TABLE dim_date (
     full_date       DATE PRIMARY KEY,
@@ -12,34 +13,29 @@ CREATE TABLE dim_date (
     week_of_year    INT NOT NULL
 );
 
-
-WITH list_date AS (
-    SELECT date_received AS full_d
-    FROM consumer_complaints
-    WHERE date_received IS NOT NULL
-    UNION
-    SELECT date_resolved
-    FROM consumer_complaints
-    WHERE date_resolved IS NOT NULL
-)
-INSERT INTO dim_date (full_date,year,quarter,month,month_name,day,day_name,is_weekend,week_of_year)
+INSERT INTO dim_date (full_date, year, quarter, month, month_name, day, day_name, is_weekend, week_of_year)
 SELECT 
-    full_d AS full_date, 
-    EXTRACT(YEAR FROM full_d)::INT AS year,
+    d::DATE AS full_date,
+    EXTRACT(YEAR FROM d)::INT AS year,
     CASE 
-        WHEN EXTRACT(MONTH FROM full_d) IN (1,2,3) THEN 'Q1'
-        WHEN EXTRACT(MONTH FROM full_d) IN (4,5,6) THEN 'Q2'
-        WHEN EXTRACT(MONTH FROM full_d) IN (7,8,9) THEN 'Q3'
-        WHEN EXTRACT(MONTH FROM full_d) IN (10,11,12) THEN 'Q4'
+        WHEN EXTRACT(MONTH FROM d) IN (1,2,3) THEN 'Q1'
+        WHEN EXTRACT(MONTH FROM d) IN (4,5,6) THEN 'Q2'
+        WHEN EXTRACT(MONTH FROM d) IN (7,8,9) THEN 'Q3'
+        WHEN EXTRACT(MONTH FROM d) IN (10,11,12) THEN 'Q4'
     END AS quarter,
-    EXTRACT(MONTH FROM full_d)::INT AS month,
-    INITCAP(TRIM(TO_CHAR(full_d, 'MONTH'))) AS month_name,
-    EXTRACT(day FROM full_d) AS day,
-    INITCAP (TRIM(TO_CHAR(full_d, 'DAY' ))) AS day_name,
-    EXTRACT(DOW FROM full_d) IN (0,6) AS is_weekend,
-    EXTRACT(WEEK FROM full_d)::INT AS week_of_year
-FROM  list_date
-ORDER BY full_d;
+    EXTRACT(MONTH FROM d)::INT AS month,
+    INITCAP(TRIM(TO_CHAR(d, 'MONTH'))) AS month_name,
+    EXTRACT(DAY FROM d)::INT AS day,
+    INITCAP(TRIM(TO_CHAR(d, 'DAY'))) AS day_name,
+    EXTRACT(DOW FROM d) IN (0,6) AS is_weekend,
+    EXTRACT(WEEK FROM d)::INT AS week_of_year
+FROM GENERATE_SERIES(
+    (SELECT LEAST(MIN(date_received), MIN(date_resolved)) FROM consumer_complaints),
+    (SELECT GREATEST(MAX(date_received), MAX(date_resolved)) FROM consumer_complaints),
+    INTERVAL '1 day'
+) AS d
+ORDER BY d;
+
 
 SELECT * FROM dim_date
 
@@ -261,6 +257,15 @@ FROM consumer_complaints;
 
 SELECT *
 FROM  consumer_complaints_ordered
+
+------------NHỚ XÓA------
+
+SELECT company, count(cc.issue_id)
+FROM consumer_complaints cc
+LEFT JOIN dim_company c ON cc.company_id = c.company_id
+LEFT JOIN dim_issue i ON cc.issue_id = i.issue_id
+GROUP BY company
+ORDER BY count(cc.issue_id) DESC
 
 
 

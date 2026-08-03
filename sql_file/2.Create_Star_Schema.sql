@@ -260,18 +260,22 @@ FROM  consumer_complaints_ordered
 
 ------------NHỚ XÓA------
 
-SELECT company, count(cc.issue_id)
+SELECT company, COUNT(issue_id)
 FROM consumer_complaints cc
 LEFT JOIN dim_company c ON cc.company_id = c.company_id
-LEFT JOIN dim_issue i ON cc.issue_id = i.issue_id
 GROUP BY company
-ORDER BY count(cc.issue_id) DESC
+ORDER by COUNT(issue_id) desc
+
+SELECT resolution_time_days
+FROM consumer_complaints
+WHERE resolution_time_days !=0
+
+SELECT * FROM dim_date;
 
 
-
------ BẢNG ------
+------BẢNG ------
 SELECT *
-FROM consumer_complaints cc
+FROM consumer_complaints 
 
 SELECT * FROM dim_company 
 SELECT * FROM dim_product 

@@ -2,7 +2,7 @@
 
 ## 1. Introduction
 
-**Consumer Complaints Analysis** là dự án phân tích dữ liệu cá nhân, xây dựng end-to-end pipeline từ raw CSV đến dashboard Power BI, nhằm minh họa quy trình làm việc thực tế của một Data Analyst.
+**Consumer Complaints Analysis** là dự án phân tích dữ liệu cá nhân, xây dựng quy trình **ETL (Extract – Transform – Load)** hoàn chỉnh từ raw CSV đến dashboard Power BI, nhằm minh họa quy trình làm việc thực tế của một Data Analyst.
 
 Dự án xử lý bộ dữ liệu ~14,000 khiếu nại của người tiêu dùng đối với các công ty tài chính (ngân hàng, cho vay, thẻ tín dụng...), làm sạch dữ liệu thô còn nhiều lỗi định dạng, mô hình hóa theo Star Schema trong PostgreSQL, rồi trực quan hóa trên Power BI thành dashboard 3 trang. Kết quả nổi bật nhất: dù công ty xử lý khiếu nại rất nhanh (đa số trong 0-3 ngày) và gần như luôn đúng hạn (98%), tỷ lệ khách hàng dispute vẫn duy trì ổn định quanh 22% — cho thấy tốc độ xử lý không phải là yếu tố quyết định sự hài lòng của khách hàng.
 
@@ -39,12 +39,6 @@ Giả định trên có thực sự đúng không? Dự án này đặt câu h�
 | Phạm vi thời gian | 2013 – 2016 |
 | Các trường chính | Company, Product, Issue, State, Submitted via (channel), Date received, Date resolved, Timely response?, Consumer disputed?, Resolution time (days) |
 
-**Các vấn đề chất lượng dữ liệu phát hiện khi import:**
-- File có BOM (Byte Order Mark) ở đầu tên cột đầu tiên
-- Cặp cột trùng lặp: `Date received`/`Date resolved` xuất hiện 2 lần (`.1` và `.2`)
-- Định dạng ngày tháng không nhất quán do Excel tự động parse locale-based, gây đảo ngược ngày/tháng (MM/DD ↔ DD/MM) ở nhiều dòng
-- Giá trị NULL và `#N/A` rải rác ở cột `state`/`state_name`
-
 ---
 
 ## 4. Tools I Used
@@ -62,6 +56,14 @@ Giả định trên có thực sự đúng không? Dự án này đặt câu h�
 Quy trình phân tích được chia thành 4 giai đoạn chính:
 
 ### 5.1. Data Cleaning (PostgreSQL)
+
+**Các vấn đề chất lượng dữ liệu phát hiện khi import:**
+- File có BOM (Byte Order Mark) ở đầu tên cột đầu tiên
+- Cặp cột trùng lặp: `Date received`/`Date resolved` xuất hiện 2 lần (`.1` và `.2`)
+- Định dạng ngày tháng không nhất quán do Excel tự động parse locale-based, gây đảo ngược ngày/tháng (MM/DD ↔ DD/MM) ở nhiều dòng
+- Giá trị NULL và `#N/A` rải rác ở cột `state`/`state_name`
+
+**Các thao tác xử lý:**
 - Xóa cột trùng lặp, chuẩn hóa tên cột
 - Chuyển đổi kiểu dữ liệu ngày tháng từ VARCHAR sang DATE
 - Phát hiện và fix lỗi swap ngày/tháng: dùng CTE phân loại 4 trường hợp (khớp gốc / swap received / swap resolved / swap cả hai) đối chiếu ngược với `resolution_time_days` để xác định giá trị đúng, dùng `MAKE_DATE` để sửa theo đúng combo khớp
@@ -84,6 +86,23 @@ Dashboard gồm 3 trang, mỗi trang trả lời 1 câu hỏi phân tích riêng
 - **Overview** — quy mô tổng thể, xu hướng theo thời gian, phân bố kênh và địa lý
 - **Performance** — tốc độ xử lý, tỷ lệ đúng hạn, tỷ lệ dispute và mối quan hệ giữa chúng
 - **Breakdown** — phân tích theo company/product/issue để xác định nguồn gốc vấn đề
+
+> **Lưu ý:** Do giới hạn tài khoản (không thể Publish lên Power BI Service ở chế độ chia sẻ công khai), dashboard được đính kèm dưới dạng ảnh chụp màn hình cho từng trang bên dưới. Link xem trực tiếp (tương tác được, có thể truy cập): [Xem Dashboard trên Power BI](datatset_consumer_complaints.pbix)
+
+**Trang 1 — Overview**
+
+<!-- Dán ảnh chụp Trang 1 Overview vào đây -->
+![Overview](picture/overview.png)
+
+**Trang 2 — Performance**
+
+<!-- Dán ảnh chụp Trang 2 Performance vào đây -->
+![Performance](picture/performance.png)
+
+**Trang 3 — Breakdown**
+
+<!-- Dán ảnh chụp Trang 3 Breakdown vào đây -->
+![Breakdown](picture/breakdown.png)
 
 ---
 
@@ -128,17 +147,18 @@ Phân tích cho thấy các công ty trong dataset đã đạt hiệu suất v�
 Consumer-Complaints-Analysis/
 │
 ├── datatset_consumer_complaints.csv     # Raw dataset gốc
-├── sql_load                           # Step import file csv
+├── sql_load                             # Step import file csv
+├── picture                              # Chứa ảnh chụp
 ├── 1_Cleaning_Data.sql                  # Script làm sạch dữ liệu (date fix, NULL handling, dim_state)
 ├── 2_Create_Star_Schema.sql             # Script tạo Star Schema (7 dimension tables + fact table)
 ├── cleaning_data_log.md                 # Log chi tiết từng bước cleaning
 ├── create_star_log.md                   # Log chi tiết từng bước tạo Star Schema
-├── Consumer_Complaints_Dashboard.pbix   # File Power BI dashboard (3 trang)
+├── datatset_consumer_complaints.pbix   # File Power BI dashboard (3 trang)
 └── README.md                            # File này
 ```
 
 **Hướng dẫn chạy lại project:**
-1. Import `datatset_consumer_complaints.csv` vào PostgreSQL
+1. Import `datatset_consumer_complaints.csv` vào PostgreSQL và làm theo thứ tự trong `sql_load`
 2. Chạy `1_Cleaning_Data.sql` theo đúng thứ tự transaction (BEGIN/COMMIT) đã đánh dấu
 3. Chạy `2_Create_Star_Schema.sql` để tạo toàn bộ dimension/fact table
-4. Mở `Consumer_Complaints_Dashboard.pbix` bằng Power BI Desktop, trỏ lại connection string PostgreSQL theo môi trường của bạn, bấm Refresh
+4. Mở `datatset_consumer_complaints.pbix` bằng Power BI Desktop, trỏ lại connection string PostgreSQL theo môi trường của bạn, bấm Refresh

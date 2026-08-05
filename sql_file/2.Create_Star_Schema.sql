@@ -258,21 +258,6 @@ FROM consumer_complaints;
 SELECT *
 FROM  consumer_complaints_ordered
 
-------------NHỚ XÓA------
-
-SELECT company, COUNT(issue_id)
-FROM consumer_complaints cc
-LEFT JOIN dim_company c ON cc.company_id = c.company_id
-GROUP BY company
-ORDER by COUNT(issue_id) desc
-
-SELECT resolution_time_days
-FROM consumer_complaints
-WHERE resolution_time_days !=0
-
-SELECT * FROM dim_date;
-
-
 ------BẢNG ------
 SELECT *
 FROM consumer_complaints 

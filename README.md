@@ -147,19 +147,19 @@ Phân tích cho thấy các công ty trong dataset đã đạt hiệu suất v�
 consumer-complaints-analysis/
 ├── .vscode/
 ├── csv_file/
-│    ├── datatset_consumer_complaints.csv    # Raw dataset gốc
-├── picture/                                 # Chứa ảnh chụp
+│   ├── datatset_consumer_complaints.csv    # Raw dataset gốc
+├── picture/                                # Chứa ảnh chụp
 ├── sql_file/
-│    ├── 1.Cleaning_Data.sql                 # Script làm sạch dữ liệu (date fix, NULL handling, dim_state)
-│    ├── 2.Create_Star_Schema.sql            # Script tạo Star Schema (7 dimension tables + fact table)
-│    ├── cleaning_data_log.md                # Log chi tiết từng bước cleaning
-│    └── create_star_log.md                  # Log chi tiết từng bước tạo Star Schema
-├── sql_load/                                # Step import file csv
-│    ├── 1_create_database.sql
-│    ├── 2.create_table.sql
-│    └── 3_modify_tables.sql
-├── datatset_consumer_complaints.pbix        # File Power BI dashboard (3 trang)
-└── README.md                                # File này
+│   ├── 1.Cleaning_Data.sql                 # Script làm sạch dữ liệu (date fix, NULL handling, dim_state)
+│   ├── 2.Create_Star_Schema.sql            # Script tạo Star Schema (7 dimension tables + fact table)
+│   ├── cleaning_data_log.md                # Log chi tiết từng bước cleaning
+│   └── create_star_log.md                  # Log chi tiết từng bước tạo Star Schema
+├── sql_load/                               # Step import file csv
+│   ├── 1_create_database.sql
+│   ├── 2.create_table.sql
+│   └── 3_modify_tables.sql
+├── datatset_consumer_complaints.pbix       # File Power BI dashboard (3 trang)
+└── README.md                               # File này
 ```
 
 **Hướng dẫn chạy lại project:**

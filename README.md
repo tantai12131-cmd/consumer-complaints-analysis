@@ -43,7 +43,7 @@ Giả định trên có thực sự đúng không? Dự án này đặt câu h�
 
 ## 4. Tools I Used
 
-- **PostgreSQL** — database chính, thực hiện toàn bộ cleaning, transformation và modeling
+- **PostgreSQL** — database chính, thực hiện toàn bộ data cleaning, transformation và modeling
 - **VS Code + SQLTools extension** — viết và chạy SQL trực tiếp
 - **Power BI Desktop** — kết nối trực tiếp tới PostgreSQL, xây dựng data model và dashboard
 - **Markdown** — ghi log chi tiết quá trình cleaning (`cleaning_data_log.md`, `create_star_log.md`) để đảm bảo khả năng truy vết (traceability) mọi thao tác trên dữ liệu

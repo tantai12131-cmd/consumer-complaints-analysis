@@ -150,7 +150,7 @@ consumer-complaints-analysis/
 │   ├── datatset_consumer_complaints.csv    # Raw dataset gốc
 ├── picture/                                # Chứa ảnh chụp
 ├── sql_file/
-│   ├── 1.Cleaning_Data.sql                 # Script làm sạch dữ liệu (date fix, NULL handling, dim_state)
+│   ├── 1.Cleaning_Data.sql              # Script làm sạch dữ liệu (date fix, NULL handling, dim_state)
 │   ├── 2.Create_Star_Schema.sql            # Script tạo Star Schema (7 dimension tables + fact table)
 │   ├── cleaning_data_log.md                # Log chi tiết từng bước cleaning
 │   └── create_star_log.md                  # Log chi tiết từng bước tạo Star Schema

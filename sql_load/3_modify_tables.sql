@@ -1,9 +1,9 @@
 -- ============================================================
--- Run AFTER 01_create_tables.sql
+-- Run AFTER create_tables.sql
 -- ============================================================
 -- IMPORTANT: Thay 'C:/your/path/to/' bằng đường dẫn thực tế
 -- đến folder chứa các file CSV của bạn.
--- Windows dùng dấu / (không phải \)
+-- Windows nên dùng dấu / (thay vì \ để tránh lỗi)
 -- Ví dụ: 'C:/Users/YourName/Desktop/coffee_shop_clean/'
 -- ============================================================
 
@@ -13,7 +13,7 @@ COPY consumer_complaints (
     state_name, date_received_2, date_resolved_2,
     resolution_time_days, year, qtr_us_fly
 )
-FROM 'D:\Project_DA\consumer-complaints-analysis\csv_file\datatset_consumer_complaints.csv'
+FROM 'D:/Project_DA/consumer-complaints-analysis/csv_file/datatset_consumer_complaints.csv'
 WITH (FORMAT csv, HEADER true, DELIMITER ',', ENCODING 'UTF8', QUOTE '"');
 
 

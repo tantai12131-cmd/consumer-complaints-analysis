@@ -1,1 +1,1 @@
-CREATE DATABASE consumer_Complaints_dataset
+CREATE DATABASE consumer_complaints_dataset

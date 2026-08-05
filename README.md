@@ -4,7 +4,7 @@
 
 **Consumer Complaints Analysis** là dự án phân tích dữ liệu cá nhân, xây dựng quy trình **ETL (Extract – Transform – Load)** hoàn chỉnh từ raw CSV đến dashboard Power BI, nhằm minh họa quy trình làm việc thực tế của một Data Analyst.
 
-Dự án xử lý bộ dữ liệu ~14,000 khiếu nại của người tiêu dùng đối với các công ty tài chính (ngân hàng, cho vay, thẻ tín dụng...), làm sạch dữ liệu thô còn nhiều lỗi định dạng, mô hình hóa theo Star Schema trong PostgreSQL, rồi trực quan hóa trên Power BI thành dashboard 3 trang. Kết quả nổi bật nhất: dù công ty xử lý khiếu nại rất nhanh (đa số trong 0-3 ngày) và gần như luôn đúng hạn (98%), tỷ lệ khách hàng dispute vẫn duy trì ổn định quanh 22% — cho thấy tốc độ xử lý không phải là yếu tố quyết định sự hài lòng của khách hàng.
+Dự án xử lý bộ dữ liệu ~14,000 khiếu nại của người tiêu dùng đối với các công ty tài chính (ngân hàng, cho vay, thẻ tín dụng...), làm sạch dữ liệu thô còn nhiều lỗi định dạng, mô hình hóa theo Star Schema trong PostgreSQL, rồi trực quan hóa trên Power BI. Kết quả nổi bật nhất: dù công ty xử lý khiếu nại rất nhanh (đa số trong 0-3 ngày) và gần như luôn đúng hạn (98%), tỷ lệ khách hàng dispute vẫn duy trì ổn định quanh 22% — cho thấy tốc độ xử lý không phải là yếu tố quyết định sự hài lòng của khách hàng.
 
 ### Mục lục
 - [2. Business Context & Core Problem](#2-business-context--core-problem)
@@ -87,7 +87,7 @@ Dashboard gồm 3 trang, mỗi trang trả lời 1 câu hỏi phân tích riêng
 - **Performance** — tốc độ xử lý, tỷ lệ đúng hạn, tỷ lệ dispute và mối quan hệ giữa chúng
 - **Breakdown** — phân tích theo company/product/issue để xác định nguồn gốc vấn đề
 
-> **Lưu ý:** Do giới hạn tài khoản (không thể Publish lên Power BI Service ở chế độ chia sẻ công khai), dashboard được đính kèm dưới dạng ảnh chụp màn hình cho từng trang bên dưới. Link xem trực tiếp (tương tác được, có thể truy cập): [Xem Dashboard trên Power BI](datatset_consumer_complaints.pbix)
+> **Lưu ý:** Do giới hạn tài khoản (không thể Publish lên Power BI Service ở chế độ chia sẻ công khai), dashboard được đính kèm dưới dạng ảnh chụp màn hình cho từng trang bên dưới. Link xem trực tiếp (tương tác được, có thể tải): [Dashboard trên Power BI](datatset_consumer_complaints.pbix)
 
 **Trang 1 — Overview**
 
@@ -144,21 +144,26 @@ Phân tích cho thấy các công ty trong dataset đã đạt hiệu suất v�
 ## 8. Project Structure
 
 ```
-Consumer-Complaints-Analysis/
-│
-├── datatset_consumer_complaints.csv     # Raw dataset gốc
-├── sql_load                             # Step import file csv
-├── picture                              # Chứa ảnh chụp
-├── 1_Cleaning_Data.sql                  # Script làm sạch dữ liệu (date fix, NULL handling, dim_state)
-├── 2_Create_Star_Schema.sql             # Script tạo Star Schema (7 dimension tables + fact table)
-├── cleaning_data_log.md                 # Log chi tiết từng bước cleaning
-├── create_star_log.md                   # Log chi tiết từng bước tạo Star Schema
-├── datatset_consumer_complaints.pbix   # File Power BI dashboard (3 trang)
-└── README.md                            # File này
+consumer-complaints-analysis/
+├── .vscode/
+├── csv_file/
+│    ├── datatset_consumer_complaints.csv    # Raw dataset gốc
+├── picture/                                 # Chứa ảnh chụp
+├── sql_file/
+│    ├── 1.Cleaning_Data.sql                 # Script làm sạch dữ liệu (date fix, NULL handling, dim_state)
+│    ├── 2.Create_Star_Schema.sql            # Script tạo Star Schema (7 dimension tables + fact table)
+│    ├── cleaning_data_log.md                # Log chi tiết từng bước cleaning
+│    └── create_star_log.md                  # Log chi tiết từng bước tạo Star Schema
+├── sql_load/                                # Step import file csv
+│    ├── 1_create_database.sql
+│    ├── 2.create_table.sql
+│    └── 3_modify_tables.sql
+├── datatset_consumer_complaints.pbix        # File Power BI dashboard (3 trang)
+└── README.md                                # File này
 ```
 
 **Hướng dẫn chạy lại project:**
 1. Import `datatset_consumer_complaints.csv` vào PostgreSQL và làm theo thứ tự trong `sql_load`
 2. Chạy `1_Cleaning_Data.sql` theo đúng thứ tự transaction (BEGIN/COMMIT) đã đánh dấu
 3. Chạy `2_Create_Star_Schema.sql` để tạo toàn bộ dimension/fact table
-4. Mở `datatset_consumer_complaints.pbix` bằng Power BI Desktop, trỏ lại connection string PostgreSQL theo môi trường của bạn, bấm Refresh
+4. Tải + Mở `datatset_consumer_complaints.pbix` bằng Power BI Desktop
